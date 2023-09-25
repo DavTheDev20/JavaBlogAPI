@@ -1,11 +1,15 @@
 package com.example.blog;
 
 import com.example.blog.models.Post;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class MainController {
@@ -13,64 +17,81 @@ public class MainController {
     private PostRepository postRepository;
 
     @PostMapping(path = "/api/posts/create", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody String addPost(@RequestParam String title, @RequestParam String content, HttpServletResponse response) {
+    public @ResponseBody ResponseEntity<Object> addPost(@RequestParam String title, @RequestParam String content) {
         try {
             Post newPost = new Post();
             newPost.setTitle(title);
             newPost.setContent(content);
             postRepository.save(newPost);
-            return "{\"success\": 1, \"response\": \"Post was successfully saved\"}";
+            Map<String, Boolean> successResponse = new HashMap<>();
+            successResponse.put("success", true);
+            return new ResponseEntity<>(successResponse, HttpStatus.OK);
         } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            return "{\"success\": 0}";
+            Map<String, Boolean> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
 
     @GetMapping(path = "/api/posts")
-    public @ResponseBody Iterable<Post> getAllPosts(HttpServletResponse response) throws Exception {
+    public @ResponseBody ResponseEntity<Object> getAllPosts() {
         try {
-            return postRepository.findAll();
+            Map<String, Iterable<Post>> successResponse = new HashMap<>();
+            successResponse.put("posts", postRepository.findAll());
+            return new ResponseEntity<>(successResponse, HttpStatus.OK);
         } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            throw new Exception(e);
+            Map<String, Boolean> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @PutMapping(path = "/api/posts/{postId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody String updatePost(@PathVariable(value = "postId") int id, @RequestParam String title, @RequestParam String content, HttpServletResponse response) {
+    @PutMapping(path = "/api/posts/update/{postId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody ResponseEntity<Object> updatePost(@PathVariable(value = "postId") int id, @RequestParam String title,
+            @RequestParam String content) {
         try {
             if (postRepository.existsById(id)) {
                 Post post = postRepository.findById(id).get();
                 post.setTitle(title);
                 post.setContent(content);
                 postRepository.save(post);
-                return "{\"success\": 1}";
+                Map<String, Boolean> successResponse = new HashMap<>();
+                successResponse.put("success", true);
+                return new ResponseEntity<>(successResponse, HttpStatus.OK);
             }
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return "{\"success\": 0, \"error\": \" No post exists with that id\"}";
+            Map<String, String> noPostResponse = new HashMap<>();
+            noPostResponse.put("success", "false");
+            noPostResponse.put("error", "No post exists with that id");
+            return new ResponseEntity<>(noPostResponse, HttpStatus.BAD_REQUEST);
 
         } catch (Exception e) {
             System.out.println(e);
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            return "{\"success\": 0}";
+            Map<String, Boolean> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @DeleteMapping(path = "/api/posts/{postId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody String deletePost(@PathVariable(value = "postId") int id, HttpServletResponse response) {
+    @DeleteMapping(path = "/api/posts/delete/{postId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody ResponseEntity<Object> deletePost(@PathVariable(value = "postId") int id) {
         try {
             if (postRepository.existsById(id)) {
                 postRepository.deleteById(id);
-                return "{\"succeess\": 1}";
+                Map<String, Boolean> successResponse = new HashMap<>();
+                successResponse.put("success", true);
+                return new ResponseEntity<>(successResponse, HttpStatus.OK);
             }
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return "{\"success\": 0, \"error\": \" No post exists with that id\"}";
+            Map<String, String> noPostResponse = new HashMap<>();
+            noPostResponse.put("success", "false");
+            noPostResponse.put("error", "No posts exists with that id");
+            return new ResponseEntity<>(noPostResponse, HttpStatus.BAD_REQUEST);
 
         } catch (Exception e) {
             System.out.println(e);
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            return "{\"success\": 0}";
+            Map<String, Boolean> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
