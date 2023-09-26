@@ -16,12 +16,17 @@ public class MainController {
     @Autowired
     private PostRepository postRepository;
 
+    public static class PostData {
+        public String title;
+        public String content;
+    }
+
     @PostMapping(path = "/api/posts/create", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody ResponseEntity<Object> addPost(@RequestParam String title, @RequestParam String content) {
+    public @ResponseBody ResponseEntity<Object> addPost(@RequestBody PostData postData) {
         try {
             Post newPost = new Post();
-            newPost.setTitle(title);
-            newPost.setContent(content);
+            newPost.setTitle(postData.title);
+            newPost.setContent(postData.content);
             postRepository.save(newPost);
             Map<String, Boolean> successResponse = new HashMap<>();
             successResponse.put("success", true);
@@ -48,13 +53,12 @@ public class MainController {
     }
 
     @PutMapping(path = "/api/posts/update/{postId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody ResponseEntity<Object> updatePost(@PathVariable(value = "postId") int id, @RequestParam String title,
-            @RequestParam String content) {
+    public @ResponseBody ResponseEntity<Object> updatePost(@PathVariable(value = "postId") int id, @RequestBody PostData postData) {
         try {
             if (postRepository.existsById(id)) {
                 Post post = postRepository.findById(id).get();
-                post.setTitle(title);
-                post.setContent(content);
+                post.setTitle(postData.title);
+                post.setContent(postData.content);
                 postRepository.save(post);
                 Map<String, Boolean> successResponse = new HashMap<>();
                 successResponse.put("success", true);
