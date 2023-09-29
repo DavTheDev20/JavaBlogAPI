@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Testing</title>
+  </head>
+  <body>
+    <style>
+        .post {
+            border-bottom: 1px solid black;
+            width: 45%;
+            padding: 1%;
+        }
+    </style>
+    <h1>Blog Application</h1>
+    <form onsubmit="addPost(event)">
+      <label>Title</label>
+      <br />
+      <input type="text" id="title"/>
+      <br />
+      <label>Content</label>
+      <br />
+      <textarea cols="32" rows="7" id="content"></textarea>
+      <br />
+      <button type="submit">Submit</button>
+    </form>
+    <div class="posts">
+
+    </div>
+    <script>
+        const baseApiUrl = "http://localhost:8080/api/posts";
+        const postsSection = document.querySelector(".posts");
+        
+
+        async function getPosts() {
+            const response = await fetch(baseApiUrl, {headers: {
+                "Content-Type": "application/json"
+            }});
+            const data = await response.json();
+            const posts = data.posts;
+            posts.reverse().forEach(post => {
+                const postDiv = document.createElement("div");
+                postDiv.innerHTML = `
+                <h2>${post.title}</h2>
+                <p>${post.content}</p>
+                <a href="#" onclick="deletePost(${post.id})">Delete</a>
+                `;
+                postDiv.className = "post";
+                postsSection.appendChild(postDiv);
+            })
+        }
+
+        async function deletePost(postId) {
+            const response = await fetch(
+                baseApiUrl + "/delete/" + postId,
+                {
+                    method: "DELETE",
+                }
+            );
+            const data = await response.json();
+            window.location.reload();
+        }
+
+        async function addPost(event) {
+            event.preventDefault();
+            const title = document.querySelector("#title");
+            const content = document.querySelector("#content");
+
+            const requestBody = {title: title.value, content: content.value}
+
+            console.log(requestBody)
+
+            const response = await fetch(baseApiUrl + "/create", {
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                method: "POST",
+                body: JSON.stringify(requestBody)
+            });
+
+            const data = await response.json();
+
+            console.log(data);
+
+            title.value = "";
+            content.value = "";
+            window.location.reload();
+        }
+
+        getPosts();
+    </script>
+  </body>
+</html>
