@@ -1,6 +1,7 @@
 package com.example.blog;
 
 import com.example.blog.models.Post;
+import com.example.blog.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,10 +18,14 @@ public class MainController {
     @Autowired
     private PostRepository postRepository;
 
+    @Autowired
+    private PostService postService;
+
     public static class PostData {
         public String title;
         public String content;
     }
+
 
     @GetMapping(path = "/")
     public String index(Model model) {
@@ -29,19 +34,22 @@ public class MainController {
 
     @PostMapping(path = "/api/posts/create", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody ResponseEntity<Object> addPost(@RequestBody PostData postData) {
-        try {
-            Post newPost = new Post();
-            newPost.setTitle(postData.title);
-            newPost.setContent(postData.content);
-            postRepository.save(newPost);
-            Map<String, Boolean> successResponse = new HashMap<>();
-            successResponse.put("success", true);
-            return new ResponseEntity<>(successResponse, HttpStatus.OK);
-        } catch (Exception e) {
+        if (postData.title == null || postData.content == null) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Please include title and content in request body.");
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+
+        Boolean result = postService.createPost(postData.title, postData.content);
+
+        if (!result) {
             Map<String, Boolean> errorResponse = new HashMap<>();
             errorResponse.put("success", false);
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        Map<String, Boolean> successResponse = new HashMap<>();
+        successResponse.put("success", true);
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
 
     }
 
@@ -49,7 +57,7 @@ public class MainController {
     public @ResponseBody ResponseEntity<Object> getAllPosts() {
         try {
             Map<String, Iterable<Post>> successResponse = new HashMap<>();
-            successResponse.put("posts", postRepository.findAll());
+            successResponse.put("posts", postService.getPosts());
             return new ResponseEntity<>(successResponse, HttpStatus.OK);
         } catch (Exception e) {
             Map<String, Boolean> errorResponse = new HashMap<>();
@@ -60,49 +68,41 @@ public class MainController {
 
     @PutMapping(path = "/api/posts/update/{postId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody ResponseEntity<Object> updatePost(@PathVariable(value = "postId") int id,
-            @RequestBody PostData postData) {
-        try {
-            if (postRepository.existsById(id)) {
-                Post post = postRepository.findById(id).get();
-                post.setTitle(postData.title);
-                post.setContent(postData.content);
-                postRepository.save(post);
-                Map<String, Boolean> successResponse = new HashMap<>();
-                successResponse.put("success", true);
-                return new ResponseEntity<>(successResponse, HttpStatus.OK);
+                                                           @RequestBody PostData postData) {
+        if (postRepository.existsById(id)) {
+            boolean result = postService.updatePost(id, postData.title, postData.content);
+            if (!result) {
+                Map<String, Boolean> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
             }
-            Map<String, String> noPostResponse = new HashMap<>();
-            noPostResponse.put("success", "false");
-            noPostResponse.put("error", "No post exists with that id");
-            return new ResponseEntity<>(noPostResponse, HttpStatus.BAD_REQUEST);
-
-        } catch (Exception e) {
-            System.out.println(e);
-            Map<String, Boolean> errorResponse = new HashMap<>();
-            errorResponse.put("success", false);
-            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+            Map<String, Boolean> successResponse = new HashMap<>();
+            successResponse.put("success", true);
+            return new ResponseEntity<>(successResponse, HttpStatus.OK);
         }
+        Map<String, String> noPostResponse = new HashMap<>();
+        noPostResponse.put("success", "false");
+        noPostResponse.put("error", "No post exists with that id");
+        return new ResponseEntity<>(noPostResponse, HttpStatus.BAD_REQUEST);
     }
 
     @DeleteMapping(path = "/api/posts/delete/{postId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody ResponseEntity<Object> deletePost(@PathVariable(value = "postId") int id) {
-        try {
-            if (postRepository.existsById(id)) {
-                postRepository.deleteById(id);
-                Map<String, Boolean> successResponse = new HashMap<>();
-                successResponse.put("success", true);
-                return new ResponseEntity<>(successResponse, HttpStatus.OK);
+        if (postRepository.existsById(id)) {
+            boolean result = postService.deletePost(id);
+            if (!result) {
+                Map<String, Boolean> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
             }
-            Map<String, String> noPostResponse = new HashMap<>();
-            noPostResponse.put("success", "false");
-            noPostResponse.put("error", "No posts exists with that id");
-            return new ResponseEntity<>(noPostResponse, HttpStatus.BAD_REQUEST);
-
-        } catch (Exception e) {
-            System.out.println(e);
-            Map<String, Boolean> errorResponse = new HashMap<>();
-            errorResponse.put("success", false);
-            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+            Map<String, Boolean> successResponse = new HashMap<>();
+            successResponse.put("success", true);
+            return new ResponseEntity<>(successResponse, HttpStatus.OK);
         }
+        Map<String, String> noPostResponse = new HashMap<>();
+        noPostResponse.put("success", "false");
+        noPostResponse.put("error", "No posts exists with that id");
+        return new ResponseEntity<>(noPostResponse, HttpStatus.BAD_REQUEST);
+
     }
 }
