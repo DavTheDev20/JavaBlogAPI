@@ -32,7 +32,7 @@
         <div class="form-floating">
           <input type="text" id="title" class="form-control" required />
           <label for="title" class="form-label">Title</label>
-          <div class="invalid-feedback">Title cannot be blank</div>
+          <div class="invalid-feedback">Invalid</div>
         </div>
       </div>
       <div class="mb-3 input-group">
@@ -44,7 +44,8 @@
             required
           ></textarea>
           <label for="content">Content</label>
-          <div class="invalid-feedback">Content cannot be blank</div>
+          <div class="invalid-feedback">Invalid</div>
+          <span class="badge text-bg-secondary" id="character-counter"></span>
         </div>
       </div>
 
@@ -59,6 +60,33 @@
     <script>
       const baseApiUrl = "http://localhost:8080/api/posts";
       const postsSection = document.querySelector(".posts");
+      const title = document.querySelector("#title");
+      const content = document.querySelector("#content");
+      const characterCounter = document.querySelector("#character-counter");
+      let charCount = 0;
+
+      characterCounter.innerHTML = `${charCount}/255`;
+
+      content.addEventListener("input", (event) => {
+        if (
+          characterCounter.classList.contains("text-bg-danger") &&
+          charCount <= 255
+        ) {
+          characterCounter.classList.replace(
+            "text-bg-danger",
+            "text-bg-secondary"
+          );
+        }
+        charCount = content.value.length;
+        characterCounter.innerHTML = `${charCount}/255`;
+
+        if (charCount > 254) {
+          characterCounter.classList.replace(
+            "text-bg-secondary",
+            "text-bg-danger"
+          );
+        }
+      });
 
       async function getPosts() {
         const response = await fetch(baseApiUrl, {
@@ -90,8 +118,8 @@
 
       async function addPost(event) {
         event.preventDefault();
-        const title = document.querySelector("#title");
-        const content = document.querySelector("#content");
+        title.classList.remove("is-invalid");
+        content.classList.remove("is-invalid");
 
         if (!title.value) {
           title.classList.add("is-invalid");
@@ -102,6 +130,11 @@
           return;
         }
         if (!content.value) {
+          content.classList.add("is-invalid");
+          return;
+        }
+
+        if (content.value.length > 255) {
           content.classList.add("is-invalid");
           return;
         }

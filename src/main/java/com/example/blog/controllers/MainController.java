@@ -1,5 +1,6 @@
-package com.example.blog;
+package com.example.blog.controllers;
 
+import com.example.blog.PostRepository;
 import com.example.blog.models.Post;
 import com.example.blog.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
