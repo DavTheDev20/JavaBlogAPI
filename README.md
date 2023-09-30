@@ -14,7 +14,7 @@
 - **/api/posts** (GET)
   - Get all posts from the database
 - **/api/posts/create** (POST)
-  - Creates new post (**must include title & content as params**)
+  - Creates new post (**must include title & content in JSON body**)
 - **/api/posts/update/[postId]** (PUT)
   - Updates existing post with the matching id (**must include title & content as params**)
 - **/api/posts/delete/[postId]** (DELETE)
