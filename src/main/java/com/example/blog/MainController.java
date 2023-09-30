@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -19,6 +20,11 @@ public class MainController {
     public static class PostData {
         public String title;
         public String content;
+    }
+
+    @GetMapping(path = "/")
+    public String index(Model model) {
+        return "index";
     }
 
     @PostMapping(path = "/api/posts/create", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -53,7 +59,8 @@ public class MainController {
     }
 
     @PutMapping(path = "/api/posts/update/{postId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody ResponseEntity<Object> updatePost(@PathVariable(value = "postId") int id, @RequestBody PostData postData) {
+    public @ResponseBody ResponseEntity<Object> updatePost(@PathVariable(value = "postId") int id,
+            @RequestBody PostData postData) {
         try {
             if (postRepository.existsById(id)) {
                 Post post = postRepository.findById(id).get();
