@@ -9,13 +9,20 @@
       type="text/css"
       rel="stylesheet"
     />
-    <link rel="icon" type="image/x-icon" href="http://localhost:8080/images/spring-boot-logo.png">
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="https://javablogapi-production.up.railway.app/images/spring-boot-logo.png"
+    />
   </head>
   <body>
     <h1 th:text='${"Edit Post: " + post.get().getId()}' class="ms-3 my-2">
       Edit
     </h1>
-    <span class="badge rounded-pill text-bg-primary ms-3 mb-3" th:text='${"Last Updated On: " + #dates.format(post.get().getUpdatedAt(), "MMMM d, yyyy hh:mm a")}'></span>
+    <span
+      class="badge rounded-pill text-bg-primary ms-3 mb-3"
+      th:text='${"Last Updated On: " + #dates.format(post.get().getUpdatedAt(), "MMMM d, yyyy hh:mm a")}'
+    ></span>
     <form class="w-50 mx-3 needs-validation" novalidate>
       <div class="input-group mb-3">
         <div class="form-floating">
@@ -56,7 +63,9 @@
     <a href="/" class="d-block mt-5 ms-3">Go back</a>
 
     <script>
-      const apiBaseUrl = "http://localhost:8080/api/posts";
+      const apiBaseUrl =
+        "http://localhost:8080/api/posts" ||
+        "https://javablogapi-production.up.railway.app/api/posts";
       const form = document.querySelector("form");
 
       form.addEventListener("submit", async (ev) => {
