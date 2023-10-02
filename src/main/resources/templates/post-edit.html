@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,11 +9,13 @@
       type="text/css"
       rel="stylesheet"
     />
+    <link rel="icon" type="image/x-icon" href="http://localhost:8080/images/spring-boot-logo.png">
   </head>
   <body>
     <h1 th:text='${"Edit Post: " + post.get().getId()}' class="ms-3 my-2">
       Edit
     </h1>
+    <span class="badge rounded-pill text-bg-primary ms-3 mb-3" th:text='${"Last Updated On: " + #dates.format(post.get().getUpdatedAt(), "MMMM d, yyyy hh:mm a")}'></span>
     <form class="w-50 mx-3 needs-validation" novalidate>
       <div class="input-group mb-3">
         <div class="form-floating">
