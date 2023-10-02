@@ -3,8 +3,11 @@
 ### How to run (inital instructions):
 
 1. Ensure all maven packages are installed
-2. Add DB_USER and DB_PASSWORD for your MYSQL instance to the enviornment variables when running the application
-3. Create new MYSQL schema labeled 'javablogapi'
+2. Create new MYSQL schema labeled 'javablogapi'
+3. Add these environment variables to the run command
+   1. **MYSQL_DB_URI** (MYSQL database connection string)
+   2. **DB_USER** (MYSQL database user)
+   3. **DB_PASSWORD** (MYSQL database password)
 4. Run the application with this command: `./mvnw spring-boot:run`
 
 ### Routes:
