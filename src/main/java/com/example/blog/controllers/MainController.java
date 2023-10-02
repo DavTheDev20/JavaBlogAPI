@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Controller
 public class MainController {
@@ -27,10 +28,19 @@ public class MainController {
         public String content;
     }
 
-
     @GetMapping(path = "/")
     public String index(Model model) {
         return "index";
+    }
+
+    @GetMapping(path = "/post/edit/{postId}")
+    public String postPage(@PathVariable(value = "postId") int id, Model model) {
+        Optional<Post> post = postService.getPost(id);
+        if (post.isPresent()) {
+            model.addAttribute("post", post);
+            return "post-edit";
+        }
+        return null;
     }
 
     @PostMapping(path = "/api/posts/create", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -67,9 +77,22 @@ public class MainController {
         }
     }
 
+    @GetMapping(path = "/api/post/{postId}")
+    public @ResponseBody ResponseEntity<Object> getSinglePost(@PathVariable(value = "postId") int id) {
+        try {
+            Map<String, Optional<Post>> successResponse = new HashMap<>();
+            successResponse.put("post", postService.getPost(id));
+            return new ResponseEntity<>(successResponse, HttpStatus.OK);
+        } catch (Exception e) {
+            Map<String, Boolean> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PutMapping(path = "/api/posts/update/{postId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody ResponseEntity<Object> updatePost(@PathVariable(value = "postId") int id,
-                                                           @RequestBody PostData postData) {
+            @RequestBody PostData postData) {
         if (postRepository.existsById(id)) {
             boolean result = postService.updatePost(id, postData.title, postData.content);
             if (!result) {

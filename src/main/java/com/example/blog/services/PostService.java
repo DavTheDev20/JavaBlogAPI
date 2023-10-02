@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 public class PostService {
@@ -30,6 +31,13 @@ public class PostService {
 
     public Iterable<Post> getPosts() {
         return postRepository.findAll();
+    }
+
+    public Optional<Post> getPost(int id) {
+        if (postRepository.findById(id).isPresent()) {
+            return postRepository.findById(id);
+        }
+        return null;
     }
 
     public Boolean updatePost(int postId, String title, String content) {
