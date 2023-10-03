@@ -4,6 +4,7 @@ import com.example.blog.PostRepository;
 import com.example.blog.models.Post;
 import com.example.blog.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,9 @@ public class MainController {
     @Autowired
     private PostService postService;
 
+    @Value("${environment.api.url}")
+    private String apiUrl;
+
     public static class PostData {
         public String title;
         public String content;
@@ -30,6 +34,7 @@ public class MainController {
 
     @GetMapping(path = "/")
     public String index(Model model) {
+        model.addAttribute("apiUrl", apiUrl);
         return "index";
     }
 
@@ -38,6 +43,7 @@ public class MainController {
         Optional<Post> post = postService.getPost(id);
         if (post.isPresent()) {
             model.addAttribute("post", post);
+            model.addAttribute("apiUrl", apiUrl);
             return "post-edit";
         }
         return null;
