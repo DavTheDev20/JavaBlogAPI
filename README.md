@@ -8,6 +8,7 @@
    1. **MYSQL_DB_URI** (MYSQL database connection string)
    2. **DB_USER** (MYSQL database user)
    3. **DB_PASSWORD** (MYSQL database password)
+   4. **API_URL** (The base url for api routes [should be set to <ins>http://localhost:8080</ins> locally])
 4. Run the application with this command: `./mvnw spring-boot:run`
 
 ### Routes:
