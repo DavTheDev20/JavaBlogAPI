@@ -12,7 +12,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -41,9 +45,12 @@ public class MainController {
     @GetMapping(path = "/post/edit/{postId}")
     public String postPage(@PathVariable(value = "postId") int id, Model model) {
         Optional<Post> post = postService.getPost(id);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.US);
+        String formattedDate = dateFormat.format(post.get().getUpdatedAt());
         if (post.isPresent()) {
             model.addAttribute("post", post);
             model.addAttribute("apiUrl", apiUrl);
+            model.addAttribute("formattedDate", formattedDate);
             return "post-edit";
         }
         return null;
