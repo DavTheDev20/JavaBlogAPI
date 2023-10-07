@@ -21,7 +21,7 @@
     </h1>
     <span
       class="badge rounded-pill text-bg-primary ms-3 mb-3"
-      th:text='${"Last Updated On: " + #dates.format(post.get().getUpdatedAt(), "MMMM d, yyyy hh:mm a")}'
+      th:text='${"Last Updated On: " + formattedDate}'
     ></span>
     <form class="w-50 mx-3 needs-validation" novalidate>
       <div class="input-group mb-3">
